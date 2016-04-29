@@ -2,22 +2,29 @@ define(function(require){
 	var $ = require("jquery");
 	var justep = require("$UI/system/lib/justep");
 	require('jSignature');
+	//var io=require('http://cdn.bootcss.com/socket.io/1.3.7/socket.io.js');
 	var Model = function(){
 		this.callParent();
 		this.mode=1;
 		this.uploading=false;
-		init();
+		this.messaging=false;
+
+		//initSocket();
 	};
 	function init(){
-		if($(window).width()>600){
+		$('#bgcontainer *').hide();
+		/*if($(window).width()>600){
 		$('#bgcontainer').width(600);
 		}
 		if($(window).height()>700){
 		$('#bgcontainer').height(700).css('top',($(window).height()-$('#bgcontainer').height())/2);
-		}
+		}*/
 		if($(window).width()<400){
 			$('#bgcontainer').width($(window).width()+60);
 			$('#bgcontainer').css('left',-30);
+		}else{
+			$('#bgcontainer').width($(window).width());
+			$('#bgcontainer').css('left',0);
 		}
 		$('#canvasContainer').width($('#bgcontainer').width()-60);
 		$('#canvasContainer').height($('#bgcontainer').height()-84);
@@ -36,6 +43,35 @@ define(function(require){
 		$('#b').width(wc);
 		$('#bgcontainer *').fadeIn();
 		$('#canvasContainer').jSignature({'width':'100%','height':'100%','signatureLine':false,'color':'#000','background-color':'transparent'});
+	}
+	function initSocket(){
+
+	    // 连接服务端
+	    var socket = io('http://workerman.net:2120');
+	    // uid可以是自己网站的用户id，以便针对uid推送以及统计在线人数
+	    uid = "85848858481";//+localStorage['user_id'];
+	    // socket连接后以uid登录
+	    socket.on('connect', function(){
+	    	socket.emit('login', uid);
+	    	console.log(uid);
+	    });
+	    // 后端推送来消息时
+	    socket.on('new_msg', function(msg){
+	    	msg=msg.replace("&quot;",'"');
+	        console.log("收到消息："+msg);
+	        
+	        var data=JSON.parse(msg);
+	        if(data.status=="success"){
+			var count=data.count;
+			$('#counter span').text(data.count);
+			if(data.count==0)$('#counter').hide();
+			else{$('#counter').show('slow');}
+		}
+	    });
+	    // 后端推送来在线数据时
+	    socket.on('update_online_count', function(online_stat){
+	        console.log(online_stat);
+	    });
 	}
 	Model.prototype.button2Click = function(event){
 		this.comp('messageDialog1').show();
@@ -70,8 +106,9 @@ define(function(require){
 	    // Sending the image data to Server
 	    $.ajax({
 	        type: 'POST',
+	        global:false,
 	        url: 'http://datahub.top/print/saveimg.php',
-	        data:'img='+Pic+'&addTime='+addTime+'&printer_id='+localStorage['printer_id'],
+	        data:'img='+Pic+'&addTime='+addTime+'&printer_id='+localStorage['printer_id']+'&user_id='+localStorage['user_id'],
 	        //contentType: 'application/json; charset=utf-8',
 	        dataType: 'json',
 	        success: function (data) {
@@ -138,15 +175,20 @@ define(function(require){
 		var u=function(){me.findmessage();};
 		var p=setInterval(u,10000);
 	};  
-	Model.prototype.findmessage=function(){
-		$.getJSON('http://datahub.top/print/message.php',{printer_id:localStorage['printer_id'],type:'info'},function(data){
+	Model.prototype.findmessage=function(){window.onerror=null;
+		if(this.messaging)return;
+		this.messaging=true;
+		var me=this;
+		$.getJSON('http://datahub.top/print/message.php',{printer_id:localStorage['printer_id'],user_id:localStorage['user_id'],type:'info'},function(data){
 		if(data.status=="success"){
 			var count=data.count;
 			$('#counter span').text(data.count);
 			if(data.count==0)$('#counter').hide();
 			else{$('#counter').show('slow');}
+			
 		}
-		});
+		}).always(function(){
+		me.messaging=false;});
 	}
 	Model.prototype.commit=function(){
 		var d=this.comp('localData');
@@ -186,6 +228,11 @@ define(function(require){
 	Model.prototype.messageDialog3OK = function(event){
 localStorage['username']="";
 		justep.Shell.showPage('login');
+	};
+
+	Model.prototype.modelActive = function(event){
+		init();
+		$(window).resize(init);
 	};
 
 	return Model;

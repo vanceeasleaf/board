@@ -1,4 +1,12 @@
-function initPhotoSwipeFromDOM(gallerySelector) {
+define(function(require){
+	var $ = require("jquery");
+	var justep = require("$UI/system/lib/justep");
+	var allData = require("./loadData");
+	require('css!photoswipe').load();
+	require('css!default-skin/default-skin').load();
+	var PhotoSwipe=require('photoswipe.js');
+	var PhotoSwipeUI_Default=require('photoswipe-ui-default.js');
+	var initPhotoSwipeFromDOM = function(gallerySelector) {
 
     // parse slide data (url, title, size ...) from DOM elements 
     // (children of gallerySelector)
@@ -200,3 +208,53 @@ function initPhotoSwipeFromDOM(gallerySelector) {
         openPhotoSwipe( hashData.pid ,  galleryElements[ hashData.gid - 1 ], true, true );
     }
 };
+
+
+	
+	var Model = function(){
+		this.callParent();
+		this.type=1;
+		this.loaded=0;
+		// execute above function
+initPhotoSwipeFromDOM('.my-gallery');
+	};
+
+	Model.prototype.image1Click = function(event){
+	// 确定后返回当前行，用于windowDialog的mapping映射
+	//	var data1 = this.comp("data1");
+	//	var row = event.bindingContext.$object;
+	//	var receiver = this.comp("windowReceiver1");
+		//receiver.windowEnsure(data1.getCurrentRow());
+		//receiver.windowEnsure(row);
+	};
+
+	/*Model.prototype.windowReceiver1Receive = function(event){
+		this.type = event.data.type;
+		this.comp("data1").refreshData();
+	};*/
+
+	Model.prototype.data1CustomRefresh = function(event){
+		var printer_id=localStorage['printer_id'];
+		var url = "http://datahub.top/print/history.php?printer_id="+printer_id;
+		allData.loadDataFromFile(url, this.comp('data1'), true);
+	};
+	Model.prototype.localDataCustomRefresh = function(event){
+		if(localStorage.getItem("localData")){
+			var json=JSON.parse(localStorage.getItem("localData"));
+			var rows=[];
+			for(var i in json.rows){
+				var row=json.rows[i];
+				var obj={};
+				for(var key in row){
+					obj[key]=row[key].value;
+				}
+				rows.push(obj);
+			}
+			this.comp('localData').loadData(rows);
+		}
+	};
+
+
+
+	return Model;
+});

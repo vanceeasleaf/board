@@ -1,243 +1,186 @@
 define(function(require){
 	var $ = require("jquery");
 	var justep = require("$UI/system/lib/justep");
-	var allData = require("./loadData");
-	require('css!photoswipe').load();
-	require('css!default-skin/default-skin').load();
-	var PhotoSwipe=require('photoswipe.js');
-	var PhotoSwipeUI_Default=require('photoswipe-ui-default.js');
-	var initPhotoSwipeFromDOM = function(gallerySelector) {
 
-    // parse slide data (url, title, size ...) from DOM elements 
-    // (children of gallerySelector)
-    var parseThumbnailElements = function(el) {
-        var thumbElements = el.childNodes,
-            numNodes = thumbElements.length,
-            items = [],
-            figureEl,
-            linkEl,
-            size,
-            item;
-
-        for(var i = 0; i < numNodes; i++) {
-
-            figureEl = thumbElements[i]; // <figure> element
-
-            // include only element nodes 
-            if(figureEl.nodeType !== 1) {
-                continue;
-            }
-
-            linkEl = figureEl.children[0]; // <a> element
-
-            size = linkEl.getAttribute('data-size').split('x');
-
-            // create slide object
-            item = {
-                src: linkEl.getAttribute('href'),
-                w: parseInt(size[0], 10),
-                h: parseInt(size[1], 10)
-            };
-
-
-
-            if(figureEl.children.length > 1) {
-                // <figcaption> content
-                item.title = figureEl.children[1].innerHTML; 
-            }
-
-            if(linkEl.children.length > 0) {
-                // <img> thumbnail element, retrieving thumbnail url
-                item.msrc = linkEl.children[0].getAttribute('src');
-            } 
-
-            item.el = figureEl; // save link to element for getThumbBoundsFn
-            items.push(item);
-        }
-
-        return items;
-    };
-
-    // find nearest parent element
-    var closest = function closest(el, fn) {
-        return el && ( fn(el) ? el : closest(el.parentNode, fn) );
-    };
-
-    // triggers when user clicks on thumbnail
-    var onThumbnailsClick = function(e) {
-        e = e || window.event;
-        e.preventDefault ? e.preventDefault() : e.returnValue = false;
-
-        var eTarget = e.target || e.srcElement;
-
-        // find root element of slide
-        var clickedListItem = closest(eTarget, function(el) {
-            return (el.tagName && el.tagName.toUpperCase() === 'FIGURE');
-        });
-
-        if(!clickedListItem) {
-            return;
-        }
-
-        // find index of clicked item by looping through all child nodes
-        // alternatively, you may define index via data- attribute
-        var clickedGallery = clickedListItem.parentNode,
-            childNodes = clickedListItem.parentNode.childNodes,
-            numChildNodes = childNodes.length,
-            nodeIndex = 0,
-            index;
-
-        for (var i = 0; i < numChildNodes; i++) {
-            if(childNodes[i].nodeType !== 1) { 
-                continue; 
-            }
-
-            if(childNodes[i] === clickedListItem) {
-                index = nodeIndex;
-                break;
-            }
-            nodeIndex++;
-        }
-
-
-
-        if(index >= 0) {
-            // open PhotoSwipe if valid index found
-            openPhotoSwipe( index, clickedGallery );
-        }
-        return false;
-    };
-
-    // parse picture index and gallery index from URL (#&pid=1&gid=2)
-    var photoswipeParseHash = function() {
-        var hash = window.location.hash.substring(1),
-        params = {};
-
-        if(hash.length < 5) {
-            return params;
-        }
-
-        var vars = hash.split('&');
-        for (var i = 0; i < vars.length; i++) {
-            if(!vars[i]) {
-                continue;
-            }
-            var pair = vars[i].split('=');  
-            if(pair.length < 2) {
-                continue;
-            }           
-            params[pair[0]] = pair[1];
-        }
-
-        if(params.gid) {
-            params.gid = parseInt(params.gid, 10);
-        }
-
-        return params;
-    };
-
-    var openPhotoSwipe = function(index, galleryElement, disableAnimation, fromURL) {
-        var pswpElement = document.querySelectorAll('.pswp')[0],
-            gallery,
-            options,
-            items;
-
-        items = parseThumbnailElements(galleryElement);
-
-        // define options (if needed)
-        options = {
-
-            // define gallery index (for URL)
-            galleryUID: galleryElement.getAttribute('data-pswp-uid'),
-
-            getThumbBoundsFn: function(index) {
-                // See Options -> getThumbBoundsFn section of documentation for more info
-                var thumbnail = items[index].el.getElementsByTagName('img')[0], // find thumbnail
-                    pageYScroll = window.pageYOffset || document.documentElement.scrollTop,
-                    rect = thumbnail.getBoundingClientRect(); 
-
-                return {x:rect.left, y:rect.top + pageYScroll, w:rect.width};
-            }
-
-        };
-
-        // PhotoSwipe opened from URL
-        if(fromURL) {
-            if(options.galleryPIDs) {
-                // parse real index when custom PIDs are used 
-                // http://photoswipe.com/documentation/faq.html#custom-pid-in-url
-                for(var j = 0; j < items.length; j++) {
-                    if(items[j].pid == index) {
-                        options.index = j;
-                        break;
-                    }
-                }
-            } else {
-                // in URL indexes start from 1
-                options.index = parseInt(index, 10) - 1;
-            }
-        } else {
-            options.index = parseInt(index, 10);
-        }
-
-        // exit if index not found
-        if( isNaN(options.index) ) {
-            return;
-        }
-
-        if(disableAnimation) {
-            options.showAnimationDuration = 0;
-        }
-
-        // Pass data to PhotoSwipe and initialize it
-        gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, items, options);
-        gallery.init();
-    };
-
-    // loop through all gallery elements and bind events
-    var galleryElements = document.querySelectorAll( gallerySelector );
-
-    for(var i = 0, l = galleryElements.length; i < l; i++) {
-        galleryElements[i].setAttribute('data-pswp-uid', i+1);
-        galleryElements[i].onclick = onThumbnailsClick;
-    }
-
-    // Parse URL and open gallery if it contains #&pid=3&gid=1
-    var hashData = photoswipeParseHash();
-    if(hashData.pid && hashData.gid) {
-        openPhotoSwipe( hashData.pid ,  galleryElements[ hashData.gid - 1 ], true, true );
-    }
-};
-
-
-	
+	var page = 0;
+var finished = 0;
+	var loading=false;
 	var Model = function(){
 		this.callParent();
-		this.type=1;
-		this.loaded=0;
-		// execute above function
-initPhotoSwipeFromDOM('.my-gallery');
+		$('#container').css('min-height',$(window).height());
+$('.x-panel-content').scroll(function () {
+  var totalheight = $(window).height() + $(this).scrollTop();
+  //console.log(totalheight+"----"+$('#container').height());
+  
+  if ($('#container').height() - 300 <= totalheight) {
+      if (!finished && !loading){
+          loadData();//console.log(1);
+      
+      	}
+  }
+});
 	};
+function refresh(){
+	page=0;
+	finished=0;
+	id=0;
+	currentDate=tomorrow.getDay();
+	dateLabel="";
+	$('#container *').remove();
+	$('#container').append('<a id="refresh" style="margin-top:20px;background: #66677C;color:#fff;display:block;width:100%;text-align:center;padding:10px;border-radius:3px;">刷新</a>');
+	$('#refresh').click(refresh);
+	$('#nomore').hide();
+	loadUnsync()
+	loadData();
+}
 
-	Model.prototype.image1Click = function(event){
-	// 确定后返回当前行，用于windowDialog的mapping映射
-	//	var data1 = this.comp("data1");
-	//	var row = event.bindingContext.$object;
-	//	var receiver = this.comp("windowReceiver1");
-		//receiver.windowEnsure(data1.getCurrentRow());
-		//receiver.windowEnsure(row);
-	};
+var tomorrow=new Date();
+var id=0;
+var showid=0;
+tomorrow.setDate(tomorrow.getDate()+1);
+var currentDate=tomorrow.getDay();
+var today=new Date();
+var yestoday=new Date();
+var dateLabel="";
+yestoday.setDate(yestoday.getDate()-1);
+//var $currentUL=$('<ul class="day"></ul>');
+//$('#container').append('<div class="date">今天</div>');
+//$('#container').append($currentUL);
 
-	/*Model.prototype.windowReceiver1Receive = function(event){
-		this.type = event.data.type;
-		this.comp("data1").refreshData();
-	};*/
+Date.prototype.Format = function (fmt) { //author: meizz 
+    var o = {
+        "M+": this.getMonth() + 1, //月份 
+        "d+": this.getDate(), //日 
+        "h+": this.getHours(), //小时 
+        "m+": this.getMinutes(), //分 
+        "s+": this.getSeconds(), //秒 
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S": this.getMilliseconds() //毫秒  
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+function loadUnsync(){
 
-	Model.prototype.data1CustomRefresh = function(event){
-		var printer_id=localStorage['printer_id'];
-		var url = "http://datahub.top/print/history.php?printer_id="+printer_id;
-		allData.loadDataFromFile(url, this.comp('data1'), true);
-	};
+		$('#unsync *').remove();
+		if(localStorage.getItem("localData")){
+			var json=JSON.parse(localStorage.getItem("localData"));
+			var rows=[];
+			for(var i in json.rows){
+				var row=json.rows[i];
+				var obj={};
+				for(var key in row){
+					obj[key]=row[key].value;
+				}
+				rows.push(obj);
+			}
+		var count=rows.length;if(count==0)return;
+		$('#unsync').append('<div class="date">未同步<span class="sum">(共'+count+'个)</span></div>');
+		var c=$('<ul class="day"></ul>');
+		$('#unsync').append(c);
+		for(var i in rows){
+			var x=rows[i];
+			c.append('<li class="item"><div class="wrap"><img  class="graph" src="'+x['img']+'"></div><div style="clear:both;"></li>');
+			
+		}
+			
+	}
+	}
+	function parseDate(time){
+		var arr =time.split(/[- :]/);
+		return new Date(arr[0],arr[1]-1,arr[2],arr[3],arr[4],arr[5]);
+	}
+	function loadData(callback) {
+	loading=true;
+	$.getJSON('http://datahub.top/print/history.php',{printer_id:localStorage['printer_id'],user_id:localStorage['user_id'],page:page},function (data) {
+          if (data.length==0) { $('#nomore').show();finished = 1; return; }
+          for(var i in data){
+			var x=data[i];
+			var s=x.printTime;
+			var date=parseDate(x.addTime).getDate();
+			var time=parseDate(x.addTime).Format("hh:mm");
+			var dateLabel=parseDate(x.addTime).Format("yyyy-MM-dd");
+			if(dateLabel==today.Format("yyyy-MM-dd")){
+				dateLabel="今天";
+			}else if(dateLabel==yestoday.Format("yyyy-MM-dd")){
+				dateLabel="昨天";
+			}
+			//console.log(date);
+			if (date!=currentDate){
+
+					$currentUL=$('<ul class="day"></ul>');
+
+				currentDate=date;
+
+				var c=$('<div class="date" style="clear:both">'+dateLabel+'<span class="sum">(共5个)</span></div>');
+				sum=c.find('.sum');
+				sumInt=0;
+				$('#container').append(c);
+				$('#container').append($currentUL);
+				$('#container').append("<div style='clear:both'></div>");
+			}
+			if(!s)s="未打印";
+			id++;
+			if(x.dayIndex<0)x.dayIndex*=-1;
+			$currentUL.append('<li class="item"><div class="dayIndex">'+x.dayIndex+'</div><div class="wrap"><img width=100 height=100 data-id='+id+' dayIndex='+x.dayIndex+' date="'+dateLabel+' '+time+'" class="graph" src="'+(x.path).replace('.png','_thumb.png')+'"><div class="marker" src="'+x.path+'" data-id='+id+'></div></div><h5 class="caption">下单时间:'+x.addTime+'</h5><h5 class="caption">打印时间:'+s+'</h5><div style="clear:both;"></li>');
+			sumInt+=1;
+			sum.text("(共"+sumInt+"个)");
+loading=false;
+		}
+    if(callback)callback();  
+  });
+  page++;
+}
+
+
+$(document).on('click','.marker',function(){
+	showid=$(this).attr('data-id');
+
+	showDetail();
+		showPic(showid);
+});
+
+$('body').append('<div class="mask" id="stagemask"><img id="control_left" src="left.png" style="top: 40%;" class="control"><div id="stage"><div class="dayIndex"></div><img   class="stage"><div class="caption"></div></div><img  id="control_right" src="right.png" style="top: 40%;right:0" class="control"><img  id="control_close" src="close.png" class="control" style="top:0px;right:0;"><div>');
+$('#control_close').click(hideDetail);
+$('#control_left').click(function(){
+	showid--;
+	if(showid<=0){
+		showid=1;//alert('已到第一个');
+	}
+	showPic(showid);
+});
+$('#control_right').click(function(){
+	showid++;
+	if(showid>=id+1){
+		if(finished){showid=id;//alert('已到最后');
+		}
+		else{loadData(function(){showPic(showid);});return;}
+	}
+	showPic(showid);
+});
+function showDetail(){
+	$('.mask').fadeIn();
+
+
+}
+function hideDetail(){
+	$('.mask').fadeOut();
+	$('.talk_title').text('历史记录');
+}
+function showPic(showid){
+	var src=$('.marker[data-id='+showid+']').attr('src');
+	var date=$('.graph[data-id='+showid+']').attr('date');
+	var dayIndex=$('.graph[data-id='+showid+']').attr('dayIndex');
+	$('.stage').attr("src",src);
+	var w=$('.stage').width();
+	var w1=$('#stage').width();
+	$('.stage').css("left",(w1-w)/2);
+	//$('#stage .caption').text(date);
+	$('.talk_title').text(date);
+	$('#stage .dayIndex').text(dayIndex);
+}
 	Model.prototype.localDataCustomRefresh = function(event){
 		if(localStorage.getItem("localData")){
 			var json=JSON.parse(localStorage.getItem("localData"));
@@ -253,6 +196,50 @@ initPhotoSwipeFromDOM('.my-gallery');
 			this.comp('localData').loadData(rows);
 		}
 	};
+
+
+
+
+
+
+
+
+	Model.prototype.modelActive = function(event){
+refresh();
+setHeight();
+$(window).resize(setHeight);
+	
+	};
+	function setHeight(){
+		var w=$(window).width();
+	var h=$(window).height();
+	//$('#stagemask').show();
+	var fh=$('.maskcontainer').position().top;
+	$('.mask').height(h-fh);
+	$('.mask').css("top",fh);
+	$('#stage').width(w);
+	$('#stage').height(h-fh);
+	$('#stage .dayIndex').css('left',w/2-$('#stage .dayIndex').width()/2);
+	$('#stage').css("top",0);
+	$('#stage').css("left",0);
+	hideDetail();
+	}
+
+
+
+
+
+
+
+
+	Model.prototype.modelInactive = function(event){
+	$('#stagemask').hide();
+	};
+
+
+
+
+
 
 
 

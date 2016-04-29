@@ -13,9 +13,11 @@ define(function(require){
 
         
         Model.prototype.btnCheckUserLogin = function(event){
-                var userData = this.comp("userData");
+                //var userData = this.comp("userData");
+                var username=$('input[xid=username]').val();
+                var password=$('input[xid=password]').val();
                 //用户名和密码为空提示
-                if ( $.trim(userData.val("username")) === "" || $.trim(userData.val("password")) === "") {
+                if ( $.trim(username) === "" || $.trim(password) === "") {
                         this.comp("messageDialog").show({
                                 "title" : "温馨提示",
                                 "message" : "请输入用户名或密码"
@@ -29,8 +31,8 @@ define(function(require){
                                 "type" : "post",
                                 "async" : false,
                                 "data":{
-                                        "username":userData.val("username"), //POS提交用户名字段
-                                        "password":userData.val("password")  //POS提交密码字段
+                                        "username":username, //POS提交用户名字段
+                                        "password":password  //POS提交密码字段
                                 },
                                 "dataType" : "json",
                                 "url" : "http://datahub.top/print/checkuserLogin.php", //PHP数据库校验用户名和密码是否正常
@@ -47,7 +49,7 @@ define(function(require){
                                         {
                                                 self.comp("messageDialog").show({
                                                 "title" : "温馨提示",
-                                                "message" : "输入的用户名或密码不正确"
+                                                "message" : data['message']
                                                 });
                                         }        
                                 },
@@ -59,6 +61,13 @@ define(function(require){
                 }
 
         };
+
+
+
+
+        Model.prototype.passwordKeydown = function(event){
+        	if(event.keyCode==13)this.btnCheckUserLogin();
+	};
 
 
 

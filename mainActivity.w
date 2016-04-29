@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <div xmlns="http://www.w3.org/1999/xhtml" xid="window" class="window" component="$UI/system/components/justep/window/window" design="device:m;">  
-  <span component="$UI/system/components/justep/messageDialog/messageDialog" xid="messageDialog3" style="left:38px;top:66px;" onOK="messageDialog3OK" title="确认注销" message="是否清空登录信息并回到登录页面？" type="OKCancel"></span><div component="$UI/system/components/justep/model/model" xid="model" onLoad="modelLoad" style="height:auto;left:54px;top:55px;"><div component="$UI/system/components/justep/data/data" autoLoad="false" xid="localData" idColumn="task_id"><column label="任务编号" name="task_id" type="Integer" xid="xid1"></column>
+  <span component="$UI/system/components/justep/messageDialog/messageDialog" xid="messageDialog3" style="left:38px;top:66px;" onOK="messageDialog3OK" title="确认注销" message="是否清空登录信息并回到登录页面？" type="OKCancel"></span><div component="$UI/system/components/justep/model/model" xid="model" onLoad="modelLoad" style="height:auto;left:54px;top:55px;" onActive="modelActive"><div component="$UI/system/components/justep/data/data" autoLoad="false" xid="localData" idColumn="task_id"><column label="任务编号" name="task_id" type="Integer" xid="xid1"></column>
   <column label="图片" name="img" type="String" xid="xid2"></column>
   <column label="下单时间" name="addTime" type="String" xid="xid3"></column></div></div> 
 <span component="$UI/system/components/justep/messageDialog/messageDialog" xid="messageDialog1" type="OKCancel" title="请确认" message="确认清除？" onOK="messageDialog1OK" style="left:3px;top:60px;"></span>
