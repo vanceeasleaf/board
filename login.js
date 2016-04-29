@@ -8,7 +8,7 @@ define(function(require){
         var Model = function(){
                 this.callParent();
  var me=$('#main');
-        	me.css('margin-top',($(window).height()-me.height())/2).fadeIn();
+        	me.css('margin-top',($(window).height()-me.height())/2).fadeIn(); 
         };
 
         
