@@ -4,3 +4,5 @@
 *.sign
 
 *.xml
+
+.cache/*
