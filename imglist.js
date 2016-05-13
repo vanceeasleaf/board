@@ -1,14 +1,14 @@
 define(function(require){
 	var $ = require("jquery");
 	var justep = require("$UI/system/lib/justep");
-
 	var page = 0;
 var finished = 0;
 	var loading=false;
+	var dateString="";
 	var Model = function(){
 		this.callParent();
-		$('#container').css('min-height',$(window).height());
-$('.x-panel-content').scroll(function () {
+		//$('#container').css('min-height',$(window).height());
+$('.x-panel-content').on("mousewheel DOMMouseScroll",function () {
   var totalheight = $(window).height() + $(this).scrollTop();
   //console.log(totalheight+"----"+$('#container').height());
   
@@ -19,7 +19,7 @@ $('.x-panel-content').scroll(function () {
       	}
   }
 });
-	};
+}
 function refresh(){
 	page=0;
 	finished=0;
@@ -27,8 +27,6 @@ function refresh(){
 	currentDate=tomorrow.getDay();
 	dateLabel="";
 	$('#container *').remove();
-	$('#container').append('<a id="refresh" style="margin-top:20px;background: #66677C;color:#fff;display:block;width:100%;text-align:center;padding:10px;border-radius:3px;">刷新</a>');
-	$('#refresh').click(refresh);
 	$('#nomore').hide();
 	loadUnsync()
 	loadData();
@@ -94,7 +92,7 @@ function loadUnsync(){
 	}
 	function loadData(callback) {
 	loading=true;
-	$.getJSON('http://datahub.top/print/history.php',{printer_id:localStorage['printer_id'],user_id:localStorage['user_id'],page:page},function (data) {
+	$.getJSON('http://datahub.top/print/history.php',{printer_id:localStorage['printer_id'],user_id:localStorage['user_id'],page:page,dateString:dateString},function (data) {
           if (data.length==0) { $('#nomore').show();finished = 1; return; }
           for(var i in data){
 			var x=data[i];
@@ -234,6 +232,40 @@ $(window).resize(setHeight);
 
 	Model.prototype.modelInactive = function(event){
 	$('#stagemask').hide();
+	};
+
+
+
+
+
+
+
+
+	Model.prototype.button1Click = function(event){
+		refresh();
+	};
+
+
+
+
+
+
+
+
+	Model.prototype.button2Click = function(event){
+		dateString=$('input[xid=input1]').val();
+		refresh();
+	};
+
+
+
+
+
+
+
+
+	Model.prototype.input1Keydown = function(event){
+		if(event.keyCode==13){this.button2Click();}
 	};
 
 

@@ -42,6 +42,7 @@ define(function(require){
 		//wc=w-$('#lb').width()-$('#rb').width()-5;
 		$('#b').width(wc);
 		$('#bgcontainer *').fadeIn();
+		$('#canvasContainer').jSignature('destroy');
 		$('#canvasContainer').jSignature({'width':'100%','height':'100%','signatureLine':false,'color':'#000','background-color':'transparent'});
 	}
 	function initSocket(){

@@ -52,9 +52,20 @@ body{background: #494A5F;
       </div>  
     
   <div class="x-panel-content maskcontainer" xid="content2" _xid="C707C8A724A00001788A19B31EB214F4" style="bottom: 0px;">
-  <div id="container" style="max-width: 700px;margin:auto;"></div>
+
+  <div component="$UI/system/components/justep/row/row" class="x-row" xid="row1" style="margin:20px auto;max-width:800px;">
+   <div class="x-col" xid="col1" style="padding:0"><a component="$UI/system/components/justep/button/button" class="btn btn-default btn-block" label=" 刷新" xid="button1" icon="icon-load-c" style="border-radius:0;border:none;background-color:#66677C;height:38px;;" onClick="button1Click">
+   <i xid="i1" class="icon-load-c"></i>
+   <span xid="span1"> 刷新</span></a></div>
+   <div class="x-col" xid="col2" style="padding:0">
+   <input component="$UI/system/components/justep/input/input" class="form-control" xid="input1" bind-keydown="input1Keydown" format="yyyy-MM-dd" placeHolder="请在此输入日期，如2016-04-22" style="border-radius:0;border:0;"></input></div>
+   <div class="x-col" xid="col3" style="padding:0"><a component="$UI/system/components/justep/button/button" class="btn btn-default btn-block" label=" 搜索" xid="button2" icon="icon-checkmark-circled" style="border-radius:0;border:none;background-color:#66677C;height:38px;;" onClick="button2Click">
+   <i xid="i2" class="icon-checkmark-circled"></i>
+   <span xid="span2"> 搜索</span></a></div></div><div id="container" style="max-width: 800px;margin:auto;"></div>
   <div style="clear:both"></div>
-  <div id="nomore">已经没有数据了</div></div>
+  <div id="nomore">已经没有数据了
+  </div>
+  </div>
   </div>
 
 </div> <!-- window -->

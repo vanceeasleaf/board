@@ -7,10 +7,13 @@ define(function(require){
         
         var Model = function(){
                 this.callParent();
- var me=$('#main');
-        	me.css('margin-top',($(window).height()-me.height())/2).fadeIn(); 
+                resize();
+                $(window).resize(resize);
         };
-
+        function resize(){
+         var me=$('#main');
+        	me.css('margin-top',($(window).height()-me.height())/2).fadeIn(); 
+        }
         
         Model.prototype.btnCheckUserLogin = function(event){
                 //var userData = this.comp("userData");
