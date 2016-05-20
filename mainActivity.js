@@ -8,11 +8,13 @@ define(function(require){
 		this.mode=1;
 		this.uploading=false;
 		this.messaging=false;
-
+		init();
+		$(window).resize(init);
 		//initSocket();
 	};
 	function init(){
 		$('#bgcontainer *').hide();
+
 		/*if($(window).width()>600){
 		$('#bgcontainer').width(600);
 		}
@@ -22,8 +24,16 @@ define(function(require){
 		if($(window).width()<400){
 			$('#bgcontainer').width($(window).width()+60);
 			$('#bgcontainer').css('left',-30);
+		}else 					
+		var ratio=0.7;
+		var t=$(window).height()*ratio;
+		var l=($(window).width()-t)*.5;
+		if($(window).width()>t){
+		$('#bgcontainer').width(t);
+		//$('#bgcontainer').css('left',l);
 		}else{
 			$('#bgcontainer').width($(window).width());
+
 			$('#bgcontainer').css('left',0);
 		}
 		$('#canvasContainer').width($('#bgcontainer').width()-60);
@@ -233,7 +243,7 @@ localStorage['username']="";
 
 	Model.prototype.modelActive = function(event){
 		init();
-		$(window).resize(init);
+		
 	};
 
 	return Model;

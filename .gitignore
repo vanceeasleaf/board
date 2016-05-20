@@ -5,5 +5,5 @@
 
 *.xml
 
-.cache
-.release
+.cache/
+.release/
