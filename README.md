@@ -5,7 +5,7 @@ A cross terminal APP to print your hand writing direct from your phone, support 
 
 > @ Mail  zhouyang@datahub.top
 
-> @ Zhejiang Quan-Qi Software Technology Co. Ltd.
+> @ Zhejiang Change Software Technology Co. Ltd.
 
 # Summary
 
