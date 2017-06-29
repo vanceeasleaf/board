@@ -11,7 +11,7 @@ A cross terminal APP to print your hand writing direct from your phone, support 
 
 ## What
 
-- A phone-application code based on cordova and (wex5)[http://www.wex5.com/wex5/] framework.
+- A phone-application code based on [cordova](http://cordova.apache.org/) and [wex5](http://www.wex5.com/wex5/) framework.
 
 - It can print your hand writing result directly to the remote printer.
 
