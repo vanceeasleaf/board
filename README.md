@@ -1,5 +1,5 @@
 # Printer Board
-A cross terminal APP to print your hand writing direct from your phone, support for iOS and android platform.
+A cross terminal APP to print your hand writing directly from your phone, support for iOS and android platform.
 
 > @ Authour Yang Zhou
 
