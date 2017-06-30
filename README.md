@@ -15,6 +15,7 @@ A cross terminal APP to print your hand writing directly from your phone, suppor
 
 - It can print your hand writing result directly to the remote printer.
 
+- Multi user in Multi enterprices support.
 ## Why 
 
 - In many conventional enterprices people still  handwrite their purchase order and don't consider for an infomational solution ( which is unbelievable for me but it's indeed the reality. They said filling the form on a screen is too slow to keep the order) . Usually there could be thousands of orders per day and they have to fax them to their factory after dismiss. That could be a heavy work which will last for two hours. Even more, the fax has authority control that remote requst must be picked up to print ( imanine you have to pick up your phone to let the other side to speak), which means you have to arange a man near the fax to receive the images one by one, so stupid.
